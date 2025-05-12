@@ -97,10 +97,6 @@ export default function ProductsPage() {
     );
   };
 
-  const handleBuyNow = (product) => {
-    void createPayment(`1x ${product.name}`, product.price, product);
-  }
-
   const authenticateUser = async () => {
     try {
       const accessToken = await getAccessToken();
@@ -119,6 +115,10 @@ export default function ProductsPage() {
       return alert(`Authentication error: ${error}`);
     }
   };
+
+  const handleBuyNow = (product) => {
+    void createPayment(`1x ${product.name}`, product.price, product);
+  }
 
   useEffect(() => {
     let interval;
@@ -142,7 +142,7 @@ export default function ProductsPage() {
     };
 
     interval = setInterval(waitForPi, 200);
-    timeout = setTimeout(() => clearInterval(interval), 10000);
+    timeout = setTimeout(() => clearInterval(interval), 5000);
 
     return () => {
       clearInterval(interval);
