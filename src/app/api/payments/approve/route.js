@@ -4,17 +4,17 @@ import {NextResponse} from "next/server";
 import {fetchServer} from "@/lib/pi-network/api/server-fetch";
 
 export async function POST(request) {
-	const authHeader = request.headers.get("authorization");
-	const token = authHeader.split(" ")[1];
+/*	const authHeader = request.headers.get("authorization");
+	const token = authHeader.split(" ")[1];*/
 
 	try {
 
-		const verifiedUser = await verifyAccessToken(token);
+/*		const verifiedUser = await verifyAccessToken(token);
 		if (!verifiedUser) {
 			return NextResponse.json(
 				{ message: "Sign in required." }
 			);
-		}
+		}*/
 
 		const body = await request.json();
 		const { paymentId } = body;
