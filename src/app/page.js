@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Star, Heart } from "lucide-react";
 import {createPayment} from "@/lib/pi-network/payment";
 import {getAccessToken} from "@/lib/auth/access-token";
-import Footer from "@/components/footer";
 
 export default function ProductsPage() {
   const [favorites, setFavorites] = useState({});
@@ -152,7 +151,8 @@ export default function ProductsPage() {
   }, []);
 
   return (
-      <main className="container mx-auto px-4 py-8">
+      <main className="relative container mx-auto px-4 py-8">
+        {user?.username && <span className="absolute top-0 right-2 p-1 text-sm font-medium">@{user.username}</span>}
     <div className="mb-8">
       <h2 className="text-3xl font-bold text-gray-800 mb-2">Featured Products</h2>
       <p className="text-gray-600">Discover our selection of premium tech products</p>
@@ -199,7 +199,7 @@ export default function ProductsPage() {
 
             <CardFooter className="flex justify-between items-center">
               <div className="text-xl font-bold text-blue-600">{formatPrice(product.price)}</div>
-              <Button onClick={() => handleBuyNow(product)} size="sm" className="cursor-pointer bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => handleBuyNow(product)} disabled={!user} size="sm" className="cursor-pointer bg-blue-600 hover:bg-blue-700">
                 <ShoppingCart size={16} className="mr-2" />
                 Buy Now
               </Button>
@@ -208,5 +208,6 @@ export default function ProductsPage() {
       ))}
     </div>
   </main>
+
   );
 }
