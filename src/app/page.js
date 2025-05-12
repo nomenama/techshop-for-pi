@@ -1,16 +1,16 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Star, Heart } from "lucide-react";
 import {createPayment} from "@/lib/pi-network/payment";
-import {getAccessToken} from "@/lib/auth/access-token";
+import {useUser} from "@/app/context/use-user";
 
 export default function ProductsPage() {
   const [favorites, setFavorites] = useState({});
-  const [user, setUser] = useState(null);
+  const {user} = useUser();
 
   const products = [
     {
@@ -97,62 +97,12 @@ export default function ProductsPage() {
     );
   };
 
-  const authenticateUser = async () => {
-    try {
-      const accessToken = await getAccessToken();
-      const response = await fetch("/api/user/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ accessToken }),
-      });
-
-      if (!response.ok) return alert("Failed to authenticate!");
-
-      return await response.json();
-    } catch (error) {
-      return alert(`Authentication error: ${error}`);
-    }
-  };
-
   const handleBuyNow = (product) => {
     void createPayment(`1x ${product.name}`, product.price, product);
   }
 
-  useEffect(() => {
-    let interval;
-    let timeout;
-
-    const waitForPi = () => {
-      if (typeof window !== "undefined" && window.Pi) {
-        clearInterval(interval);
-        clearTimeout(timeout);
-
-        authenticateUser().then((authenticatedUser) => {
-          if (authenticatedUser) {
-            setUser(authenticatedUser);
-            sessionStorage.setItem("access_token", authenticatedUser.accessToken);
-            alert("Signed in.")
-          } else {
-            alert.error("Failed to sign in.");
-          }
-        });
-      }
-    };
-
-    interval = setInterval(waitForPi, 200);
-    timeout = setTimeout(() => clearInterval(interval), 5000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, []);
-
   return (
       <main className="relative container mx-auto px-4 py-8">
-        {user?.username && <span className="absolute top-0 right-2 p-1 text-sm font-medium">@{user.username}</span>}
     <div className="mb-8">
       <h2 className="text-3xl font-bold text-gray-800 mb-2">Featured Products</h2>
       <p className="text-gray-600">Discover our selection of premium tech products</p>

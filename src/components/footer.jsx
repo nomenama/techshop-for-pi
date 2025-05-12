@@ -16,9 +16,9 @@ export default function Footer() {
 				 <div>
 					 <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
 					 <ul className="space-y-2 text-sm text-gray-300">
-						 <li><Link href="/about">About Us</Link></li>
-						 <li><Link href="/privacy">Privacy Policy</Link></li>
-						 <li><Link href="/terms">Terms and Conditions</Link></li>
+						 <li><Link href="/about" prefetch={false}>About Us</Link></li>
+						 <li><Link href="/privacy" prefetch={false}>Privacy Policy</Link></li>
+						 <li><Link href="/terms" prefetch={false}>Terms and Conditions</Link></li>
 					 </ul>
 				 </div>
 				 <div>

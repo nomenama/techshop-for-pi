@@ -33,8 +33,8 @@ export async function POST(request) {
 			}
 		);
 
-		return NextResponse.json({ message: "Transaction successful" });
+		return NextResponse.json({ message: "Transaction successful" }, {status: 200});
 	} catch (error) {
-		return NextResponse.json({ message: "Internal server error" });
+		return NextResponse.json({ message: "Internal server error" }, {status: 500});
 	}
 }

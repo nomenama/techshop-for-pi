@@ -4,16 +4,15 @@ import {piClient} from "@/lib/pi-network/sdk";
 export const onIncompletePaymentFound = async (payment) => {
 	try {
 		const {	message	} = await fetchClient("/api/reload/payments/incomplete", "POST", { payment });
-
 		return alert(message)
 	} catch (err) {
-		return alert(err.message);
+		return alert(`onReadyForServerApproval: ${err.message}`);
 	}
 };
 
 const onReadyForServerApproval = async (paymentId) => {
 	try {
-		await fetchClient("/api/payments/approve", "POST", { paymentId });
+		return await fetchClient("/api/payments/approve", "POST", { paymentId });
 	} catch (err) {
 		return alert(`onReadyForServerApproval: ${err}`);
 	}

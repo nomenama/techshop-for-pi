@@ -4,17 +4,17 @@ import {NextResponse} from "next/server";
 import {fetchServer} from "@/lib/pi-network/api/server-fetch";
 
 export async function POST(request) {
-/*	const authHeader = request.headers.get("authorization");
-	const token = authHeader.split(" ")[1];*/
+	const authHeader = request.headers.get("authorization");
+	const token = authHeader.split(" ")[1];
 
 	try {
-
-/*		const verifiedUser = await verifyAccessToken(token);
+		const verifiedUser = await verifyAccessToken(token);
 		if (!verifiedUser) {
 			return NextResponse.json(
-				{ message: "Sign in required." }
+				{ message: "Sign in required." },
+				{status: 401}
 			);
-		}*/
+		}
 
 		const body = await request.json();
 		const { paymentId } = body;
@@ -36,8 +36,9 @@ export async function POST(request) {
 		});
 
 		await fetchServer(`/payments/${paymentId}/approve`, { method: "POST" });
-		return NextResponse.json({ message: `Payment ${paymentId} approved.` });
+		return NextResponse.json({ message: `Payment ${paymentId} approved.` }, {status: 200});
 	} catch (error) {
-		return NextResponse.json({ message: error?.message || error || "Internal Server Error" });
+		console.error(error);
+		return NextResponse.json({ message: error?.message || error || "Internal Server Error" }, {status: 500});
 	}
 }

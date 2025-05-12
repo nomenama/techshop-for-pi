@@ -3,6 +3,7 @@ import "./globals.css";
 import {PiScript} from "@/lib/pi-network/sdk";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import {UserProvider} from "@/app/context/use-user";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+          <UserProvider>
           <Header />
           <div className="min-h-screen">
               {children}
@@ -32,6 +34,7 @@ export default function RootLayout({ children }) {
           <Footer />
 
           <PiScript />
+          </UserProvider>
       </body>
     </html>
   );

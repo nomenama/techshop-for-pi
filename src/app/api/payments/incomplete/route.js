@@ -20,7 +20,7 @@ export async function POST(request) {
 		const { memo: paymentIdFromBlockchain } = await horizonRes.json();
 
 		if (paymentIdFromBlockchain !== paymentId) {
-			return NextResponse.json({ message: "Payment ID doesn't match." });
+			return NextResponse.json({ message: "Payment ID doesn't match." }, {status: 400});
 		}
 
 		// Notify Pi server
@@ -49,8 +49,8 @@ export async function POST(request) {
 			{ returnDocument: "after" }
 		);
 
-		return NextResponse.json({ message: "Incomplete Payment Completed" });
+		return NextResponse.json({ message: "Incomplete Payment Completed" }, {status: 200});
 	} catch (error) {
-		return NextResponse.json({ message: error || error?.message || "Internal server error" });
+		return NextResponse.json({ message: error || error?.message || "Internal server error" }, {status: 500});
 	}
 }
