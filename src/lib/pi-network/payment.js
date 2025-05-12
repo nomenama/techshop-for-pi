@@ -32,8 +32,8 @@ const onReadyForServerCompletion =  async (paymentId, txid) => {
 
 const onCancel = async (paymentId) => {
 	try {
-		const result = await fetchClient("/api/payments/cancelled_payment", "POST", { paymentId });
-		alert(result);
+		const {message} = await fetchClient("/api/payments/cancelled_payment", "POST", { paymentId });
+		alert(message);
 	} catch (err) {
 		return alert(`onCancel: ${err}`);
 	}

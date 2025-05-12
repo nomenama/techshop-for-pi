@@ -99,7 +99,7 @@ export default function ProductsPage() {
   };
 
   const handleBuyNow = (product) => {
-    void createPayment(product.name, product.price, product);
+    void createPayment(`1x ${product.name}`, product.price, product);
   }
 
   const authenticateUser = async () => {
@@ -134,6 +134,7 @@ export default function ProductsPage() {
           if (authenticatedUser) {
             setUser(authenticatedUser);
             sessionStorage.setItem("access_token", authenticatedUser.accessToken);
+            alert("Signed in.")
           } else {
             alert.error("Failed to sign in.");
           }
