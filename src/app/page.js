@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Star, Heart } from "lucide-react";
+import {createPayment} from "@/lib/pi-network/payment";
+import {getAccessToken} from "@/lib/auth/access-token";
+import Footer from "@/components/footer";
 
 export default function ProductsPage() {
   const [favorites, setFavorites] = useState({});
+  const [user, setUser] = useState(null);
 
   const products = [
     {
@@ -72,7 +76,7 @@ export default function ProductsPage() {
   };
 
   const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`;
+    return `π ${price.toFixed(2)}`;
   };
 
   const renderStars = (rating) => {
@@ -94,119 +98,114 @@ export default function ProductsPage() {
     );
   };
 
+  const handleBuyNow = (product) => {
+    void createPayment(product.name, product.price, product);
+  }
+
+  const authenticateUser = async () => {
+    try {
+      const accessToken = await getAccessToken();
+      const response = await fetch("/api/user/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ accessToken }),
+      });
+
+      if (!response.ok) return alert("Failed to authenticate!");
+
+      return await response.json();
+    } catch (error) {
+      return alert(`Authentication error: ${error}`);
+    }
+  };
+
+  useEffect(() => {
+    let interval;
+    let timeout;
+
+    const waitForPi = () => {
+      if (typeof window !== "undefined" && window.Pi) {
+        clearInterval(interval);
+        clearTimeout(timeout);
+
+        authenticateUser().then((authenticatedUser) => {
+          if (authenticatedUser) {
+            setUser(authenticatedUser);
+            sessionStorage.setItem("access_token", authenticatedUser.accessToken);
+          } else {
+            alert.error("Failed to sign in.");
+          }
+        });
+      }
+    };
+
+    interval = setInterval(waitForPi, 200);
+    timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
+
   return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">TechStore for Pi</h1>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="hidden md:flex">
-                Categories
+      <main className="container mx-auto px-4 py-8">
+    <div className="mb-8">
+      <h2 className="text-3xl font-bold text-gray-800 mb-2">Featured Products</h2>
+      <p className="text-gray-600">Discover our selection of premium tech products</p>
+    </div>
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {products.map((product) => (
+          <Card
+              key={product.id}
+              className="overflow-hidden hover:shadow-lg transition-shadow duration-300 pt-0">
+            <div className="relative">
+              <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+              <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 bg-white/80 hover:bg-white rounded-full"
+                  onClick={() => toggleFavorite(product.id)}>
+                <Heart
+                    size={20}
+                    className={
+                      favorites[product.id] ? "fill-red-500 text-red-500" : "text-gray-600"
+                    }
+                />
               </Button>
-              <Button variant="ghost" size="sm" className="hidden md:flex">
-                Deals
+              {product.badge && (
+                  <Badge
+                      className="absolute top-2 left-2"
+                      variant={product.badge === "Premium" ? "default" : "secondary"}>
+                    {product.badge}
+                  </Badge>
+              )}
+            </div>
+
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{product.name}</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardDescription className="text-sm">
+                  {product.description}
+                </CardDescription>
+              </div>
+            </CardHeader>
+
+            <CardContent className="pb-2">{renderStars(product.rating)}</CardContent>
+
+            <CardFooter className="flex justify-between items-center">
+              <div className="text-xl font-bold text-blue-600">{formatPrice(product.price)}</div>
+              <Button onClick={() => handleBuyNow(product)} size="sm" className="cursor-pointer bg-blue-600 hover:bg-blue-700">
+                <ShoppingCart size={16} className="mr-2" />
+                Buy Now
               </Button>
-              <Button variant="ghost" size="sm" className="relative">
-                <ShoppingCart size={20} />
-                <span className="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                                0
-                            </span>
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">Featured Products</h2>
-            <p className="text-gray-600">Discover our selection of premium tech products</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.reverse().map((product) => (
-                <Card
-                    key={product.id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow duration-300 pt-0">
-                  <div className="relative">
-                    <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-2 right-2 bg-white/80 hover:bg-white rounded-full"
-                        onClick={() => toggleFavorite(product.id)}>
-                      <Heart
-                          size={20}
-                          className={
-                            favorites[product.id] ? "fill-red-500 text-red-500" : "text-gray-600"
-                          }
-                      />
-                    </Button>
-                    {product.badge && (
-                        <Badge
-                            className="absolute top-2 left-2"
-                            variant={product.badge === "Premium" ? "default" : "secondary"}>
-                          {product.badge}
-                        </Badge>
-                    )}
-                  </div>
-
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">{product.name}</CardTitle>
-                    <div className="flex justify-between items-center">
-                      <CardDescription className="text-sm">
-                        {product.description}
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="pb-2">{renderStars(product.rating)}</CardContent>
-
-                  <CardFooter className="flex justify-between items-center">
-                    <div className="text-xl font-bold text-blue-600">{formatPrice(product.price)}</div>
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                      <ShoppingCart size={16} className="mr-2" />
-                      Buy Now
-                    </Button>
-                  </CardFooter>
-                </Card>
-            ))}
-          </div>
-        </main>
-
-        <footer className="bg-gray-800 text-white py-8 mt-12">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">TechStore</h3>
-                <p className="text-gray-300 text-sm">
-                  Your one-stop shop for premium tech products with competitive pricing and exceptional
-                  customer service.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-                <ul className="space-y-2 text-sm text-gray-300">
-                  <li>About Us</li>
-                  <li>Contact</li>
-                  <li>Shipping Policy</li>
-                  <li>Return Policy</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
-                <p className="text-gray-300 text-sm mb-2">
-                  Subscribe to receive updates on new products and special promotions.
-                </p>
-                <div className="flex mt-2">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Subscribe</Button>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-gray-700 mt-8 pt-4 text-sm text-gray-400 text-center">
-              © 2025 TechStore. All rights reserved.
-            </div>
-          </div>
-        </footer>
-      </div>
+            </CardFooter>
+          </Card>
+      ))}
+    </div>
+  </main>
   );
 }
