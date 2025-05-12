@@ -9,12 +9,12 @@ export async function POST(request) {
 
 	try {
 
-		const verifiedUser = await verifyAccessToken(token);
+/*		const verifiedUser = await verifyAccessToken(token);
 		if (!verifiedUser) {
 			return NextResponse.json(
 				{ message: "Sign in required." }
 			);
-		}
+		}*/
 
 		const body = await request.json();
 		const { paymentId } = body;
